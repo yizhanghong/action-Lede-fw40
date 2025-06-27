@@ -15,6 +15,27 @@ svn_export() {
 cp -f $GITHUB_WORKSPACE/patch/102-mt7621-fix-cpu-clk-add-clkdev.patch target/linux/ramips/patches-5.4/102-mt7621-fix-cpu-clk-add-clkdev.patch
 cp -f $GITHUB_WORKSPACE/patch/322-mt7621-fix-cpu-clk-add-clkdev.patch target/linux/ramips/patches-5.10/322-mt7621-fix-cpu-clk-add-clkdev.patch
 
+cp -f $GITHUB_WORKSPACE/patch/mt7621_fw40.dtsi target/linux/ramips/dts/mt7621_fw40.dtsi
+cp -f $GITHUB_WORKSPACE/patch/mt7621_fw40.dts target/linux/ramips/dts/mt7621_fw40.dts
+#写入make
+echo '
+
+define Device/fw40
+  $(Device/dsa-migration)
+  $(Device/uimage-lzma-loader)
+  IMAGE_SIZE := 32448k
+  DEVICE_VENDOR := Doonink
+  DEVICE_MODEL := FW40
+  DEVICE_VARIANT := 32M
+  DEVICE_PACKAGES := mod-usb-ledtrig-usbport\
+		kmod-mt7603 kmod-mt76x2 \
+		kmod-usb3
+  SUPPORTED_DEVICES +=fw40 doonink,fw40
+endef
+TARGET_DEVICES += fw40
+
+' >> target/linux/ramips/image/mt7621.mk
+
 # 删除冲突软件和依赖
 rm -rf feeds/packages/lang/golang 
 rm -rf feeds/luci/applications/luci-app-filebrowser
